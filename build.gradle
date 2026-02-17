@@ -1,0 +1,52 @@
+plugins {
+	id "java"
+	id "maven-publish"
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		url = "https://repo.papermc.io/repository/maven-public/"
+	}
+}
+
+dependencies {
+	compileOnly "io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT"
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+}
+
+java {
+	withSourcesJar()
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+processResources {
+	inputs.property("version", project.version)
+	filesMatching("plugin.yml") {
+		expand("version": project.version)
+	}
+}
+
+jar {
+	inputs.property "archivesName", project.base.archivesName
+}
+
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			artifactId = project.archives_base_name
+			from components.java
+		}
+	}
+}
